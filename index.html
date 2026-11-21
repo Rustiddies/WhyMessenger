@@ -1,0 +1,385 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WhyMessenger</title>
+  <meta name="description" content="WhyMessenger — Your conversations. Your community. A desktop-grade real-time messaging web platform." />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Custom Discord-Inspired Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Firebase Configuration Notice Banner (Shown only if placeholders are present) -->
+  <div id="config-warning-banner" class="config-banner hidden" style="display: none;">
+    <div class="config-banner-content">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+      </svg>
+      <span>
+        <strong>Firebase Configuration Notice:</strong> Update <code>js/firebase-config.js</code> with your actual Firebase API keys from the Firebase Console to connect live Auth & Firestore.
+      </span>
+    </div>
+    <button class="btn-close" onclick="document.getElementById('config-warning-banner').style.display = 'none'">&times;</button>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 1. AUTHENTICATION VIEW                                                    -->
+  <!-- ========================================================================= -->
+  <div id="auth-view" class="auth-view-wrapper">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <img src="assets/logo.svg" alt="WhyMessenger Logo" class="auth-logo" />
+        <h1 class="auth-app-title">WhyMessenger</h1>
+        <p class="auth-app-tagline">Your conversations. Your community.</p>
+      </div>
+
+      <!-- Auth Tabs -->
+      <div class="auth-tabs">
+        <button id="tab-login" class="auth-tab-btn active">Log In</button>
+        <button id="tab-register" class="auth-tab-btn">Register</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="form-login" class="auth-form">
+        <div class="form-group">
+          <label for="login-email">EMAIL ADDRESS</label>
+          <input type="email" id="login-email" required placeholder="name@example.com" autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="login-password">PASSWORD</label>
+          <input type="password" id="login-password" required placeholder="••••••••" autocomplete="current-password" />
+        </div>
+        <div class="auth-helper-row">
+          <a href="#" id="forgot-password-link" class="auth-link">Forgot your password?</a>
+        </div>
+        <button type="submit" id="login-submit-btn" class="btn btn-primary btn-block">Log In</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="form-register" class="auth-form hidden">
+        <div class="form-group">
+          <label for="reg-name">FULL NAME</label>
+          <input type="text" id="reg-name" required placeholder="Alex Morgan" autocomplete="name" />
+        </div>
+        <div class="form-group">
+          <label for="reg-username">UNIQUE USERNAME</label>
+          <div class="input-prefix-wrapper">
+            <span class="input-prefix">@</span>
+            <input type="text" id="reg-username" required placeholder="alex_m" autocomplete="username" />
+          </div>
+          <span class="field-hint">3-20 lowercase characters, numbers or underscores</span>
+        </div>
+        <div class="form-group">
+          <label for="reg-email">EMAIL ADDRESS</label>
+          <input type="email" id="reg-email" required placeholder="alex@example.com" autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="reg-password">PASSWORD</label>
+          <input type="password" id="reg-password" required placeholder="At least 6 characters" autocomplete="new-password" />
+        </div>
+        <div class="form-group">
+          <label for="reg-confirm-password">CONFIRM PASSWORD</label>
+          <input type="password" id="reg-confirm-password" required placeholder="Repeat password" autocomplete="new-password" />
+        </div>
+        <button type="submit" id="reg-submit-btn" class="btn btn-primary btn-block">Create Account</button>
+      </form>
+
+      <!-- Social Sign In Divider -->
+      <div class="auth-divider">
+        <span>OR</span>
+      </div>
+
+      <!-- Google Sign In Button -->
+      <button type="button" id="google-signin-btn" class="btn btn-google btn-block">
+        <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span>Continue with Google</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 2. MAIN APPLICATION VIEW (Discord-Inspired 3-Column Layout)               -->
+  <!-- ========================================================================= -->
+  <div id="app-view" class="app-layout hidden">
+
+    <!-- Column A: Left Navigation Rail (~68px) -->
+    <nav class="nav-rail" aria-label="Global Navigation">
+      <div class="nav-rail-top">
+        <div class="nav-item logo-item" title="WhyMessenger Home">
+          <img src="assets/logo.svg" alt="WhyMessenger" class="rail-logo" />
+          <div class="nav-pill"></div>
+        </div>
+        <div class="rail-separator"></div>
+        <button id="nav-rail-dms" class="nav-item active" title="Direct Messages" aria-label="Direct Messages">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+          </svg>
+          <div class="nav-pill"></div>
+        </button>
+      </div>
+      <div class="nav-rail-bottom">
+        <button id="nav-rail-settings" class="nav-item" title="Settings" aria-label="Settings">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+            <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+          </svg>
+          <div class="nav-pill"></div>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Column B: Direct Messages Sidebar (~280px-320px) -->
+    <aside id="sidebar" class="sidebar-col">
+      <div class="sidebar-header">
+        <h2 class="sidebar-title">Direct Messages</h2>
+      </div>
+
+      <!-- User Search Bar (Search-First Discovery) -->
+      <div class="search-box-wrapper">
+        <div class="search-input-container">
+          <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+          </svg>
+          <input type="text" id="user-search-input" placeholder="Find or start a conversation" autocomplete="off" />
+          <button id="clear-search-btn" class="clear-search-btn hidden" title="Clear search">&times;</button>
+        </div>
+      </div>
+
+      <!-- Conversations & Search Results Views -->
+      <div class="sidebar-scrollable">
+        <div class="section-label">DIRECT MESSAGES</div>
+        <!-- Recent Conversations List -->
+        <div id="conversations-list" class="conversations-list">
+          <!-- Populated dynamically via ui.js -->
+        </div>
+
+        <!-- Search Results View (Hidden until searched) -->
+        <div id="search-results-container" class="search-results-container hidden">
+          <!-- Populated dynamically via ui.js -->
+        </div>
+      </div>
+
+      <!-- Bottom User Profile Bar -->
+      <div class="user-panel">
+        <div class="user-panel-info">
+          <div class="avatar-wrapper avatar-sm">
+            <img id="current-user-avatar" src="assets/default-avatar.svg" alt="Your Avatar" />
+            <span class="status-indicator-dot online"></span>
+          </div>
+          <div class="user-text-meta">
+            <span id="current-user-name" class="user-display-name">Loading...</span>
+            <span id="current-user-tag" class="user-tag">@username</span>
+          </div>
+        </div>
+        <div class="user-panel-actions">
+          <button id="open-profile-settings-btn" class="panel-icon-btn" title="User Profile & Settings" aria-label="Profile Settings">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+              <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+            </svg>
+          </button>
+          <button id="logout-btn" class="panel-icon-btn logout-btn" title="Log Out" aria-label="Log Out">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+              <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Column C: Main Chat Panel -->
+    <main id="chat-area" class="chat-col">
+
+      <!-- State 1: Empty Welcome State -->
+      <div id="chat-empty-state" class="empty-chat-view">
+        <div class="empty-chat-content">
+          <img src="assets/logo.svg" alt="WhyMessenger" class="empty-chat-logo" />
+          <h2 class="empty-chat-title">Welcome to WhyMessenger</h2>
+          <p class="empty-chat-subtitle">Your conversations. Your community.</p>
+          <div class="empty-chat-card">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32" class="empty-icon-svg">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+            <p>Select an ongoing conversation from the sidebar or use the search bar above to discover users and start messaging.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- State 2: Active Chat Pane -->
+      <div id="active-chat-pane" class="active-chat-view hidden">
+        <!-- Chat Header -->
+        <header class="chat-header">
+          <button id="mobile-back-btn" class="btn-icon mobile-only" title="Back to conversations">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+              <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+          <div class="chat-header-user">
+            <div class="avatar-wrapper avatar-xs">
+              <img id="active-chat-avatar" src="assets/default-avatar.svg" alt="Recipient" />
+            </div>
+            <div class="header-names">
+              <span id="active-chat-name" class="header-display-name">Recipient Name</span>
+              <span id="active-chat-tag" class="header-username">@username</span>
+            </div>
+          </div>
+          <div class="chat-header-actions">
+            <button id="toggle-msg-search-btn" class="btn-icon" title="Search loaded messages" aria-label="Search Messages">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        </header>
+
+        <!-- In-Chat Search Bar (collapsible) -->
+        <div id="in-chat-search-bar" class="in-chat-search-bar hidden">
+          <input type="text" id="in-chat-search-input" placeholder="Search in conversation..." />
+          <span id="search-results-count" class="search-count">0 of 0</span>
+          <button id="search-prev-btn" class="btn-icon-sm" title="Previous match">&#x25B2;</button>
+          <button id="search-next-btn" class="btn-icon-sm" title="Next match">&#x25BC;</button>
+          <button id="close-msg-search-btn" class="btn-icon-sm" title="Close search">&times;</button>
+        </div>
+
+        <!-- Scrollable Messages Container -->
+        <div id="messages-stream" class="messages-stream">
+          <!-- Populated dynamically via ui.js -->
+        </div>
+
+        <!-- Bottom Message Composer -->
+        <div class="composer-container">
+          <form id="message-composer-form" class="composer-form">
+            <div class="composer-input-box">
+              <textarea id="message-input" rows="1" maxlength="2000" placeholder="Message recipient..." aria-label="Message"></textarea>
+              <div class="composer-bottom-row">
+                <span id="char-counter" class="char-counter">0/2000</span>
+                <button type="submit" id="send-msg-btn" class="send-btn" title="Send Message" aria-label="Send Message">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 3. MODAL DIALOGS                                                          -->
+  <!-- ========================================================================= -->
+
+  <!-- User Profile Settings Modal -->
+  <div id="profile-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="profile-modal-title">User Profile Settings</h3>
+        <button id="close-profile-modal-btn" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Combined Avatar Section: Emoji picker + live preview -->
+        <div class="profile-avatar-section">
+          <div class="profile-avatar-preview-wrap">
+            <img id="profile-modal-avatar" src="assets/default-avatar.svg" alt="Profile Avatar" />
+          </div>
+          <div class="profile-avatar-controls">
+            <label for="emoji-select">Choose Emoji:</label>
+            <select id="emoji-select" class="form-control">
+              <option value="😀">😀</option>
+              <option value="😎">😎</option>
+              <option value="🤖">🤖</option>
+              <option value="👾">👾</option>
+              <option value="🐱">🐱</option>
+              <option value="🐶">🐶</option>
+              <option value="🦊">🦊</option>
+              <option value="🐼">🐼</option>
+              <option value="🦄">🦄</option>
+              <option value="🌟">🌟</option>
+              <option value="🔥">🔥</option>
+              <option value="💎">💎</option>
+              <option value="🎮">🎮</option>
+              <option value="🎵">🎵</option>
+              <option value="🌈">🌈</option>
+            </select>
+            <label for="avatar-color-input" style="margin-left:8px;">Background:</label>
+            <input type="color" id="avatar-color-input" value="#5865F2" class="form-control" style="width:60px; height:32px; display:inline-block; vertical-align:middle; margin-left:4px; cursor:pointer;" />
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 16px;">
+          <label for="profile-display-name-input">DISPLAY NAME</label>
+          <input type="text" id="profile-display-name-input" maxlength="40" placeholder="Display Name" />
+        </div>
+
+        <div class="profile-info-row">
+          <span class="info-label">USERNAME</span>
+          <span id="profile-username-display" class="info-val">@username</span>
+        </div>
+
+        <div class="profile-info-row">
+          <span class="info-label">REGISTERED EMAIL</span>
+          <span id="profile-email-display" class="info-val">email@example.com</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="save-profile-btn" class="btn btn-primary">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirm-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card modal-sm">
+      <div class="modal-header">
+        <h3 id="confirm-modal-title">Confirm Action</h3>
+      </div>
+      <div class="modal-body">
+        <p id="confirm-modal-message">Are you sure you want to proceed?</p>
+      </div>
+      <div class="modal-footer">
+        <button id="confirm-modal-cancel-btn" class="btn btn-secondary">Cancel</button>
+        <button id="confirm-modal-action-btn" class="btn btn-danger">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div id="forgot-password-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card modal-sm">
+      <div class="modal-header">
+        <h3>Reset Password</h3>
+        <button id="close-forgot-modal-btn" class="modal-close-btn">&times;</button>
+      </div>
+      <form id="forgot-password-form">
+        <div class="modal-body">
+          <p class="modal-desc">Enter your account email to receive a password reset link.</p>
+          <div class="form-group">
+            <label for="forgot-email">EMAIL ADDRESS</label>
+            <input type="email" id="forgot-email" required placeholder="name@example.com" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" id="forgot-submit-btn" class="btn btn-primary">Send Reset Link</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main ES Module Application Script -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
