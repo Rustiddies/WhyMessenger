@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="whyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6E56CF" />
+      <stop offset="50%" stop-color="#5865F2" />
+      <stop offset="100%" stop-color="#4752C4" />
+    </linearGradient>
+    <filter id="subtleGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <!-- Rounded Square Background -->
+  <rect x="4" y="4" width="92" height="92" rx="24" fill="url(#whyGrad)" filter="url(#subtleGlow)" />
+  <!-- Bold Modern Geometric 'W' -->
+  <path d="M22 30 L34 70 L43 45 L50 63 L57 45 L66 70 L78 30 L66 30 L59 54 L52 35 L48 35 L41 54 L34 30 Z" 
+        fill="#FFFFFF" 
+        stroke="#FFFFFF" 
+        stroke-width="1.5" 
+        stroke-linejoin="round" 
+        stroke-linecap="round" />
+  <!-- Accent Chat Dot -->
+  <circle cx="76" cy="30" r="3.5" fill="#57F287" />
+</svg>
