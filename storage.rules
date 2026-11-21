@@ -1,0 +1,20 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // User profile picture storage: profilePictures/{uid}/avatar
+    match /profilePictures/{uid}/{fileName} {
+      // Authenticated users can view avatars
+      allow read: if request.auth != null;
+
+      // Only the account owner may upload their avatar
+      // Enforce image mime types and maximum 2MB size limit
+      allow write: if request.auth != null && 
+                      request.auth.uid == uid &&
+                      request.resource.size <= 2 * 1024 * 1024 &&
+                      request.resource.contentType.matches('image/(jpeg|jpg|png|webp)');
+
+      // Only owner may delete
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}
